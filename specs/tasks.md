@@ -196,13 +196,32 @@ description: "Task list for PASAPP implementation"
 
 ---
 
-## Phase 9: Polish & Cross-Cutting
+## Phase 9: Polish & Cross-Cutting ✅ COMPLETE
 
-- [ ] T071 [P] Run full test suite (vitest run)
-- [ ] T072 [P] Run ESLint (max-warnings 0)
-- [ ] T073 [P] Run TypeScript check (tsc --noEmit)
-- [ ] T074 Build static site (npm run build)
-- [ ] T075 Verify GitHub Pages compatibility
+- [x] T071 [P] Run full test suite (vitest run)
+- [x] T072 [P] Run ESLint (max-warnings 0)
+- [x] T073 [P] Run TypeScript check (tsc --noEmit)
+- [x] T074 [P] Build static site (npm run build)
+- [x] T075 [P] Verify GitHub Pages compatibility
+
+---
+
+## Phase 10: UI/UX Redesign (Apple-Inspired) ✅ COMPLETE
+
+**Goal**: Modernize visual layer per design spec 007 without functional changes.
+
+- [x] T076 [P] Extend design tokens (colors light/dark, spacing, radii, shadows, typography) in src/styles/theme.ts + expose CSS vars
+- [x] T077 [P] Update GlobalStyles to tokens + prefers-reduced-motion + system font stack
+- [x] T078 [P] Rework Button styles (primary/secondary/tertiary/destructive, disabled/loading/focus/hover/active)
+- [x] T079 [P] Rework QuestionCard styles (options list, selection, feedback)
+- [x] T080 [P] Rework ExamSimulator styles (progress, stats, results)
+- [x] T081 [P] Rework MaterialLibrary + ImportExcel styles
+- [x] T082 [P] Create Icon component (inline SVG, no new deps)
+- [x] T083 [P] Create Nav component (items, active, onNavigate)
+- [x] T084 [P] Create Dashboard component (welcome, quick actions, progress/empty)
+- [x] T085 [P] Create Statistics component (average + history)
+- [x] T086 [P] Wire App shell (Layout/Sidebar/Main, views inicio/simulador/biblioteca/importar/estadisticas)
+- [x] T087 [P] Add tests for Icon/Nav/Dashboard/Statistics and run full suite
 
 ---
 

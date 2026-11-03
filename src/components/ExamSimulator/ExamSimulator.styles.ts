@@ -1,38 +1,42 @@
 import styled from 'styled-components';
+import { spacing } from '@/styles';
 
 export const SimulatorContainer = styled.div`
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: ${spacing.lg};
+  display: flex;
+  flex-direction: column;
+  gap: ${spacing.lg};
 `;
 
 export const ThemeGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: ${spacing.md};
+  margin-bottom: ${spacing.lg};
 `;
 
 export const ProgressBar = styled.div<{ percent: number }>`
   height: 0.5rem;
-  background: #e5e5ea;
-  border-radius: 0.25rem;
+  background: var(--color-border-subtle);
+  border-radius: var(--radius-pill);
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin-bottom: ${spacing.sm};
 `;
 
 export const ProgressFill = styled.div<{ percent: number }>`
   height: 100%;
-  background: #0066cc;
+  background: var(--color-accent);
   width: ${(p) => p.percent}%;
 `;
 
 export const StatsRow = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 0.9375rem;
-  color: #1d1d1f;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin-bottom: ${spacing.sm};
 `;
 
 export const StatItem = styled.div`
@@ -41,66 +45,27 @@ export const StatItem = styled.div`
 `;
 
 export const StatValue = styled.span`
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   font-weight: 700;
+  color: var(--color-text-primary);
 `;
 
 export const QuestionContainer = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-export const OptionsContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-`;
-
-export const FeedbackBox = styled.div<{ correct?: boolean }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background: ${(p) => (p.correct ? '#f0fff4' : '#fff0f0')};
-  border: 1px solid ${(p) => (p.correct ? '#34c759' : '#ff3b30')};
-  color: ${(p) => (p.correct ? '#34c759' : '#ff3b30')};
-  margin-bottom: 1.5rem;
-`;
-
-export const ComplementaryBox = styled.div`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background: #f5f5f7;
-  border: 1px solid #d2d2d7;
-  margin-bottom: 1.5rem;
-`;
-
-export const ComplementaryTitle = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1d1d1f;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-export const ComplementaryItem = styled.div`
-  font-size: 0.9375rem;
-  color: #1d1d1f;
-  margin-bottom: 0.5rem;
-`;
-
-export const DocRef = styled.span`
-  font-size: 0.8125rem;
-  color: #0066cc;
+  margin-bottom: ${spacing.lg};
 `;
 
 export const ResultsContainer = styled.div`
   text-align: center;
-  padding: 2rem 1rem;
+  padding: ${spacing.xl} ${spacing.lg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${spacing.md};
 `;
 
 export const BigPercentage = styled.div`
-  font-size: 4rem;
+  font-size: var(--font-size-huge);
   font-weight: 700;
-  color: #0066cc;
-  margin-bottom: 0.5rem;
+  color: var(--color-accent);
+  margin-bottom: ${spacing.sm};
 `;

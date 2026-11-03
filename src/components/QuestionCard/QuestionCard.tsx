@@ -1,4 +1,4 @@
-import { Container, QuestionText, OptionsGrid, OptionButton, Feedback } from './QuestionCard.styles';
+import { Container, QuestionText, OptionsList, OptionButton, Feedback } from './QuestionCard.styles';
 import { useQuestionCard } from './useQuestionCard';
 
 export interface QuestionCardProps {
@@ -22,7 +22,7 @@ export function QuestionCard({ question, onAnswer }: QuestionCardProps) {
   return (
     <Container>
       <QuestionText>{question.text}</QuestionText>
-      <OptionsGrid>
+      <OptionsList>
         {question.options.map((opt) => (
           <OptionButton
             key={opt.id}
@@ -37,7 +37,7 @@ export function QuestionCard({ question, onAnswer }: QuestionCardProps) {
             {opt.option}. {opt.text}
           </OptionButton>
         ))}
-      </OptionsGrid>
+      </OptionsList>
       {confirmed && selectedOption && correctOption && (
         <Feedback correct={selectedOption === question.correctOption}>
           {selectedOption === question.correctOption

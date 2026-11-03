@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { spacing, borderRadius } from '@/styles';
 
 interface MaterialItemProps {
   category: 'ley' | 'apunte' | 'preguntas';
@@ -7,51 +8,53 @@ interface MaterialItemProps {
 export const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: ${spacing.lg};
 `;
 
 export const CategorySection = styled.section`
-  margin-bottom: 2rem;
+  margin-bottom: ${spacing.xxl};
 `;
 
 export const CategoryTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: var(--font-size-h3);
   font-weight: 600;
-  color: #1d1d1f;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #e5e5ea;
-  padding-bottom: 0.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: ${spacing.md};
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: ${spacing.sm};
 `;
 
 export const MaterialList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: ${spacing.sm};
 `;
 
 export const MaterialItem = styled.div<MaterialItemProps>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.875rem 1rem;
-  background: #ffffff;
-  border: 1px solid #d2d2d7;
-  border-radius: 0.5rem;
+  gap: ${spacing.md};
+  padding: ${spacing.md};
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: box-shadow 0.1s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: var(--color-surface-alt);
+    box-shadow: var(--shadow);
   }
 
   &:active {
-    background: #f5f5f7;
+    background: var(--color-surface-hover);
   }
 `;
 
 export const MaterialName = styled.span`
-  font-size: 1rem;
-  color: #1d1d1f;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
 `;
 
 export const CategoryBadge = styled.span<MaterialItemProps>`
@@ -60,27 +63,27 @@ export const CategoryBadge = styled.span<MaterialItemProps>`
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.1875rem 0.625rem;
-  border-radius: 0.25rem;
-  background: ${(p) => {
-    switch (p.category) {
-      case 'ley': return '#e8f0ff';
-      case 'apunte': return '#f0fff4';
-      case 'preguntas': return '#fff0f0';
-      default: return '#f5f5f7';
-    }
-  }};
-  color: ${(p) => {
-    switch (p.category) {
-      case 'ley': return '#0066cc';
-      case 'apunte': return '#34c759';
-      case 'preguntas': return '#ff3b30';
-      default: return '#1d1d1f';
-    }
-  }};
+  border-radius: ${borderRadius.sm};
+  background: ${(p) =>
+    p.category === 'ley'
+      ? 'var(--color-accent-soft)'
+      : p.category === 'apunte'
+        ? 'var(--color-success-soft)'
+        : p.category === 'preguntas'
+          ? 'var(--color-error-soft)'
+          : 'var(--color-surface-alt)'};
+  color: ${(p) =>
+    p.category === 'ley'
+      ? 'var(--color-accent)'
+      : p.category === 'apunte'
+        ? 'var(--color-success)'
+        : p.category === 'preguntas'
+          ? 'var(--color-error)'
+          : 'var(--color-text-secondary)'};
 `;
 
 export const EmptyState = styled.div`
-  padding: 2rem;
+  padding: ${spacing.xl};
   text-align: center;
-  color: #6e6e73;
+  color: var(--color-text-secondary);
 `;

@@ -1,5 +1,18 @@
 export { Button } from './Button';
+export type { ButtonProps } from './Button';
 export { QuestionCard } from './QuestionCard';
+export type { QuestionCardProps } from './QuestionCard';
 export { ExamSimulator } from './ExamSimulator';
+export type { ExamSimulatorProps } from './ExamSimulator';
 export { MaterialLibrary } from './MaterialLibrary';
+export type { MaterialLibraryProps } from './MaterialLibrary';
 export { ImportExcel } from './ImportExcel';
+export type { ImportExcelProps } from './ImportExcel';
+export { Icon } from './Icon';
+export type { IconProps, IconName } from './Icon';
+export { Nav } from './Nav';
+export type { NavProps, NavItem } from './Nav';
+export { Dashboard } from './Dashboard';
+export type { DashboardProps, AppView } from './Dashboard';
+export { Statistics } from './Statistics';
+export type { StatisticsProps } from './Statistics';

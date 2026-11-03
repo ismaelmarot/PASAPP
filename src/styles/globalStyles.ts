@@ -1,6 +1,9 @@
 import { createGlobalStyle } from 'styled-components';
+import { themeVariables, typography } from './theme';
 
 export const GlobalStyles = createGlobalStyle`
+  ${themeVariables}
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -12,11 +15,17 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #ffffff;
-    color: #1d1d1f;
+    font-family: ${typography.fontFamily};
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    letter-spacing: ${typography.letterSpacing.tight};
   }
 
   #root {
@@ -24,8 +33,17 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   a {
-    color: #0066cc;
+    color: var(--color-accent);
     text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
   }
 
   @media (prefers-reduced-motion: reduce) {

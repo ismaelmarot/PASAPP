@@ -1,6 +1,6 @@
 # Implementation Plan: PASAPP
 
-**Branch**: `plan-initial` | **Date**: 2026-11-02 | **Specs**: specs/001-006/
+**Branch**: `plan-initial` | **Date**: 2026-11-02 | **Specs**: specs/001-007/
 
 ## Summary
 
@@ -34,6 +34,7 @@ specs/
 ├── 004-exam-simulator/spec.md
 ├── 005-material-library/spec.md
 ├── 006-ui-components/spec.md
+├── 007-ui-redesign/spec.md
 ├── plan.md              # This file
 └── tasks.md             # Task breakdown
 ```
@@ -63,6 +64,26 @@ src/
 │   │   ├── MaterialLibrary.tsx
 │   │   ├── MaterialLibrary.styles.ts
 │   │   ├── MaterialLibrary.test.tsx
+│   │   └── index.ts
+│   ├── Icon/
+│   │   ├── Icon.tsx
+│   │   ├── Icon.styles.ts
+│   │   ├── Icon.test.tsx
+│   │   └── index.ts
+│   ├── Nav/
+│   │   ├── Nav.tsx
+│   │   ├── Nav.styles.ts
+│   │   ├── Nav.test.tsx
+│   │   └── index.ts
+│   ├── Dashboard/
+│   │   ├── Dashboard.tsx
+│   │   ├── Dashboard.styles.ts
+│   │   ├── Dashboard.test.tsx
+│   │   └── index.ts
+│   ├── Statistics/
+│   │   ├── Statistics.tsx
+│   │   ├── Statistics.styles.ts
+│   │   ├── Statistics.test.tsx
 │   │   └── index.ts
 │   └── index.ts
 ├── hooks/
