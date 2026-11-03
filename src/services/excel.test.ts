@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import * as XLSX from 'xlsx';
 import { importExcelFromWorkbook, type ImportResult } from '@/services';
 
+const REAL_EXCEL_PATH = 'public/data/questions/PAS - evaluaciones - TEST.xlsx';
+
 function makeWorkbook(sheets: Record<string, string[][]>): XLSX.WorkBook {
   const wb = XLSX.utils.book_new();
   for (const [name, rows] of Object.entries(sheets)) {
@@ -137,5 +139,17 @@ describe('excelService', () => {
 
     expect(result.imported).toBe(1);
     expect(result.errors.length).toBe(0);
+  });
+
+  it('imports the real uploaded excel file and extracts questions', () => {
+    const workbook = XLSX.readFile(REAL_EXCEL_PATH) as XLSX.WorkBook;
+    const result = importExcelFromWorkbook(workbook) as ImportResult;
+
+    expect(result.imported).toBeGreaterThan(0);
+    expect(result.questions.length).toBe(result.imported);
+    const metadataErrors = result.errors.filter((e) => e.tab === 'Export Summary');
+    expect(metadataErrors.length).toBe(0);
+    const missingCorrect = result.errors.filter((e) => e.message === 'Respuesta correcta no encontrada o inválida');
+    expect(missingCorrect.length).toBe(0);
   });
 });
