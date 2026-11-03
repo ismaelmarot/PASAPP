@@ -93,4 +93,49 @@ describe('excelService', () => {
     expect(result.imported).toBe(0);
     expect(result.questions.length).toBe(0);
   });
+
+  it('imports from a sheet without header row using positional columns', () => {
+    const wb = makeWorkbook({
+      'A1 - Intro al Seguro': [['¿Qué es un seguro?', optionCellA, 'A']],
+    });
+
+    const result = importExcelFromWorkbook(wb) as ImportResult;
+
+    expect(result.imported).toBe(1);
+    expect(result.errors.length).toBe(0);
+    expect(result.questions[0].theme).toBe('A1 - Intro al Seguro');
+    expect(result.questions[0].correctOption).toBe('A');
+    expect(result.questions[0].options.length).toBe(4);
+  });
+
+  it('resolves correct answer from text when a letter is not present', () => {
+    const textAnswer = 'El resultado obtenido y las causas.';
+    const wb = makeWorkbook({
+      Seguros: [
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿La respuesta?', 'a.\nOpcion A.\nb.\nEl resultado obtenido y las causas.\nc.\nOpcion C.\nd.\nOpcion D.', textAnswer],
+      ],
+    });
+
+    const result = importExcelFromWorkbook(wb) as ImportResult;
+
+    expect(result.imported).toBe(1);
+    expect(result.errors.length).toBe(0);
+    expect(result.questions[0].correctOption).toBe('B');
+  });
+
+  it('skips metadata export summary sheet', () => {
+    const wb = makeWorkbook({
+      'Export Summary': [['This document was exported from Numbers.']],
+      Seguros: [
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Qué es un seguro?', optionCellA, 'A'],
+      ],
+    });
+
+    const result = importExcelFromWorkbook(wb) as ImportResult;
+
+    expect(result.imported).toBe(1);
+    expect(result.errors.length).toBe(0);
+  });
 });
