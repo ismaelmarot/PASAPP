@@ -60,11 +60,11 @@ function App(): JSX.Element {
   const { documents } = useDocuments();
   const { examResults } = useExamResults();
 
-  const handleNavigate = (key: string) => {
-    const nextView = NAV_TO_VIEW[key];
+  const handleNavigate = (input: string) => {
+    const nextView = NAV_TO_VIEW[input] ?? (input as AppView);
     if (!nextView) return;
     setView(nextView);
-    setActiveKey(key);
+    setActiveKey(input);
   };
 
   const handleImported = async () => {

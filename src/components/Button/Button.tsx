@@ -11,7 +11,7 @@ export interface ButtonProps {
 
 export function Button({ variant = 'primary', disabled = false, loading = false, onClick, children }: ButtonProps): JSX.Element {
   return (
-    <Root variant={variant} disabled={disabled || loading} onClick={onClick} type="button" $loading={loading}>
+    <Root $variant={variant} disabled={disabled || loading} onClick={onClick} type="button" $loading={loading}>
       {loading && <Icon name="play" size={16} />}
       {children}
     </Root>

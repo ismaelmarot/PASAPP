@@ -2,12 +2,12 @@ import styled, { css } from 'styled-components';
 import { spacing, borderRadius } from '@/styles';
 
 export interface StyledButtonProps {
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
+  $variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
   disabled?: boolean;
   $loading?: boolean;
 }
 
-export const buttonBackground = (variant?: StyledButtonProps['variant']): string => {
+export const buttonBackground = (variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive'): string => {
   switch (variant) {
     case 'secondary':
       return 'var(--color-surface-alt)';
@@ -20,7 +20,7 @@ export const buttonBackground = (variant?: StyledButtonProps['variant']): string
   }
 };
 
-export const buttonColor = (variant?: StyledButtonProps['variant']): string => {
+export const buttonColor = (variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive'): string => {
   switch (variant) {
     case 'secondary':
       return 'var(--color-text-primary)';
@@ -48,12 +48,12 @@ export const Root = styled.button<StyledButtonProps>`
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.05s ease;
 
-  background-color: ${(p) => buttonBackground(p.variant)};
-  color: ${(p) => buttonColor(p.variant)};
+  background-color: ${(p) => buttonBackground(p.$variant)};
+  color: ${(p) => buttonColor(p.$variant)};
 
   &:hover:not(:disabled) {
     background-color: ${(p) => {
-      switch (p.variant) {
+      switch (p.$variant) {
         case 'secondary':
           return 'var(--color-surface-hover)';
         case 'tertiary':
@@ -68,7 +68,7 @@ export const Root = styled.button<StyledButtonProps>`
 
   &:active:not(:disabled) {
     background-color: ${(p) => {
-      switch (p.variant) {
+      switch (p.$variant) {
         case 'secondary':
           return 'var(--color-border-subtle)';
         case 'tertiary':
