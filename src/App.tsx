@@ -56,7 +56,7 @@ const Main = styled.main`
 function App(): JSX.Element {
   const [view, setView] = useState<AppView>('inicio');
   const [activeKey, setActiveKey] = useState<string>('inicio');
-  const { questions } = useQuestions();
+  const { questions, refresh } = useQuestions();
   const { documents } = useDocuments();
   const { examResults } = useExamResults();
 
@@ -67,7 +67,10 @@ function App(): JSX.Element {
     setActiveKey(key);
   };
 
-  const handleImported = () => handleNavigate('estudiar');
+  const handleImported = async () => {
+    await refresh();
+    handleNavigate('estudiar');
+  };
 
   return (
     <>

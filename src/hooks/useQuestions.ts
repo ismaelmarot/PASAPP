@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { storageService } from '@/services';
 import type { Question } from '@/interfaces';
 
@@ -21,5 +21,10 @@ export function useQuestions() {
     };
   }, []);
 
-  return { questions, loading };
+  const refresh = useCallback(async () => {
+    const q = await storageService.getAll<Question>('questions');
+    setQuestions(q);
+  }, []);
+
+  return { questions, loading, refresh };
 }

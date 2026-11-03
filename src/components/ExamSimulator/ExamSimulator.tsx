@@ -47,14 +47,20 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
     return (
       <SimulatorContainer>
         <h1>Seleccionar tema</h1>
-        <p>Elige el tema que deseas practicar:</p>
-        <ThemeGrid>
-          {themes.map((t) => (
-            <Button key={t} variant="secondary" onClick={() => selectTheme(t)}>
-              {t}
-            </Button>
-          ))}
-        </ThemeGrid>
+        {themes.length > 0 ? (
+          <>
+            <p>Elige el tema que deseas practicar:</p>
+            <ThemeGrid>
+              {themes.map((t) => (
+                <Button key={t} variant="secondary" onClick={() => selectTheme(t)}>
+                  {t}
+                </Button>
+              ))}
+            </ThemeGrid>
+          </>
+        ) : (
+          <p>No hay preguntas para practicar. Importa un archivo Excel primero.</p>
+        )}
       </SimulatorContainer>
     );
   }
