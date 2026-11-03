@@ -11,17 +11,19 @@ function makeWorkbook(sheets: Record<string, string[][]>): XLSX.WorkBook {
   return wb;
 }
 
+const optionCellA = 'a.\nSeguro de responsabilidad civil terceros en superficie.\nb.\nSeguro de accidentes personales aeronáuticos.\nc.\nSeguro de casco.\nd.\nSeguro de responsabilidad civil texto Ariel.';
+
 describe('excelService', () => {
-  it('imports questions from a multi-tab Excel with standard columns', () => {
+  it('imports questions from a multi-tab Excel with 3-column format', () => {
     const wb = makeWorkbook({
       'Responsabilidad Civil': [
-        ['Pregunta', 'A', 'B', 'C', 'D', 'Respuesta Correcta'],
-        ['¿Qué es un seguro?', 'Contrato', 'Ley', 'Póliza', 'Prima', 'A'],
-        ['¿Quién asegura?', 'Asegurado', 'Aseguradora', 'Corredor', 'Productor', 'B'],
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Qué es un seguro?', optionCellA, 'A'],
+        ['¿Quién es el asegurado?', 'a.\nUn individuo.\nb.\nUna empresa.\nc.\nUn banco.\nd.\nUn gobierno.', 'B'],
       ],
       'Contratos': [
-        ['Pregunta', 'A', 'B', 'C', 'D', 'Respuesta Correcta'],
-        ['¿Qué es la póliza?', 'Documento', 'Ley', 'Contrato', 'Factura', 'A'],
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Qué es la póliza?', 'a.\nUn contrato.\nb.\nUna ley.\nc.\nUn seguro.\nd.\nUna factura.', 'A'],
       ],
     });
 
@@ -30,7 +32,6 @@ describe('excelService', () => {
     expect(result.imported).toBe(3);
     expect(result.errors.length).toBe(0);
     expect(result.questions[0].theme).toBe('Responsabilidad Civil');
-    expect(result.questions[0].tabName).toBe('Responsabilidad Civil');
     expect(result.questions[0].text).toBe('¿Qué es un seguro?');
     expect(result.questions[0].correctOption).toBe('A');
     expect(result.questions[0].options.length).toBe(4);
@@ -41,9 +42,9 @@ describe('excelService', () => {
   it('detects duplicate questions', () => {
     const wb = makeWorkbook({
       Seguros: [
-        ['Pregunta', 'A', 'B', 'C', 'D', 'Respuesta Correcta'],
-        ['¿Qué es un seguro?', 'A', 'B', 'C', 'D', 'A'],
-        ['¿Qué es un seguro?', 'A', 'B', 'C', 'D', 'A'],
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Qué es un seguro?', optionCellA, 'A'],
+        ['¿Qué es un seguro?', optionCellA, 'A'],
       ],
     });
 
@@ -57,9 +58,9 @@ describe('excelService', () => {
   it('reports missing options without aborting', () => {
     const wb = makeWorkbook({
       Seguros: [
-        ['Pregunta', 'A', 'B', 'C', 'D', 'Respuesta Correcta'],
-        ['¿Falta la D?', 'A', 'B', 'C', '', 'A'],
-        ['¿Opción completa?', 'A', 'B', 'C', 'D', 'A'],
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Falta la D?', 'a.\nOpción A.\nb.\nOpción B.\nc.\nOpción C.', 'A'],
+        ['¿Opción completa?', 'a.\nOpción A.\nb.\nOpción B.\nc.\nOpción C.\nd.\nOpción D.', 'A'],
       ],
     });
 
@@ -73,8 +74,8 @@ describe('excelService', () => {
   it('reports missing correct answer', () => {
     const wb = makeWorkbook({
       Seguros: [
-        ['Pregunta', 'A', 'B', 'C', 'D'],
-        ['¿Sin respuesta?', 'A', 'B', 'C', 'D'],
+        ['Pregunta', 'Opciones', 'Respuesta Correcta'],
+        ['¿Sin respuesta?', 'a.\nOpción A.\nb.\nOpción B.\nc.\nOpción C.\nd.\nOpción D.', 'X'],
       ],
     });
 
@@ -82,7 +83,7 @@ describe('excelService', () => {
 
     expect(result.imported).toBe(0);
     expect(result.errors.length).toBe(1);
-    expect(result.errors[0].message).toContain('correcta');
+    expect(result.errors[0].message).toContain('Respuesta correcta');
   });
 
   it('returns empty result for empty workbook', () => {

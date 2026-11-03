@@ -1,10 +1,10 @@
 import * as XLSX from 'xlsx';
 import type { Question, AnswerOption } from '@/interfaces';
 
-export type AnswerOptionMap = Record<AnswerOption, string>;
-
-interface RawQuestionRow {
-  [key: string]: unknown;
+export interface ImportError {
+  row: number;
+  tab: string;
+  message: string;
 }
 
 export interface ImportResult {
@@ -13,29 +13,19 @@ export interface ImportResult {
   questions: Question[];
 }
 
-export interface ImportError {
-  row: number;
-  tab: string;
-  message: string;
+interface RawQuestionRow {
+  [key: string]: unknown;
 }
 
-const COMMON_QUESTION_COLUMNS = ['pregunta', 'question', 'texto', 'enunciado'];
-const COMMON_OPTION_COLUMNS: Record<AnswerOption, string[]> = {
-  A: ['a', 'opcion_a', 'opción_a', 'option_a', 'respuesta_a'],
-  B: ['b', 'opcion_b', 'opción_b', 'option_b', 'respuesta_b'],
-  C: ['c', 'opcion_c', 'opción_c', 'option_c', 'respuesta_c'],
-  D: ['d', 'opcion_d', 'opción_d', 'option_d', 'respuesta_d'],
-};
-const COMMON_CORRECT_COLUMNS = ['respuesta_correcta', 'correcta', 'correct_answer', 'answer', 'solucion', 'solución'];
+const QUESTION_COLUMNS = ['pregunta', 'question', 'texto', 'enunciado'];
+const OPTIONS_COLUMNS = ['opciones', 'option', 'options', 'alternativas'];
+const CORRECT_COLUMNS = ['respuesta_correcta', 'correcta', 'correct_answer', 'answer', 'solucion', 'solución'];
 
 function normalizeKey(key: string): string {
   return key.toString().trim().toLowerCase().replace(/[_\s-]/g, '');
 }
 
-function findColumn(
-  headers: string[],
-  candidates: string[],
-): string | undefined {
+function findColumn(headers: string[], candidates: string[]): string | undefined {
   const normalizedHeaders = headers.map(normalizeKey);
   for (const candidate of candidates) {
     const norm = normalizeKey(candidate);
@@ -45,34 +35,41 @@ function findColumn(
   return undefined;
 }
 
-function extractOptions(
-  row: RawQuestionRow,
-  headers: string[],
-): AnswerOptionMap | undefined {
-  const options: Partial<AnswerOptionMap> = {};
-  for (const opt of ['A', 'B', 'C', 'D'] as const) {
-    const col = findColumn(headers, COMMON_OPTION_COLUMNS[opt]);
-    if (!col) return undefined;
-    const value = row[col];
-    if (value === undefined || value === null || String(value).trim() === '') return undefined;
-    options[opt] = String(value).trim();
+function parseOptionsFromCell(raw: unknown): { option: AnswerOption; text: string }[] | undefined {
+  const text = String(raw ?? '').trim();
+  if (!text) return undefined;
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  const parsed: { option: AnswerOption; text: string }[] = [];
+  let current: { option: AnswerOption; text: string } | null = null;
+  for (const line of lines) {
+    const m = line.match(/^([a-dA-D])\.\s*([\s\S]*)$/);
+    if (m) {
+      if (current) parsed.push(current);
+      current = { option: m[1].toUpperCase() as AnswerOption, text: (m[2] ?? '').trim() };
+    } else if (current) {
+      current.text = `${current.text} ${line}`.trim();
+    }
   }
-  return options as AnswerOptionMap;
+  if (current) parsed.push(current);
+  const byLetter = new Map<string, { option: AnswerOption; text: string }>();
+  for (const o of parsed) {
+    if (o.option === 'A' || o.option === 'B' || o.option === 'C' || o.option === 'D') {
+      byLetter.set(o.option, o);
+    }
+  }
+  const all: { option: AnswerOption; text: string }[] = [];
+  for (const letter of ['A', 'B', 'C', 'D'] as AnswerOption[]) {
+    const o = byLetter.get(letter);
+    if (!o) return undefined;
+    all.push(o);
+  }
+  return all;
 }
 
-function extractCorrectOption(
-  row: RawQuestionRow,
-  headers: string[],
-): AnswerOption | undefined {
-  const col = findColumn(headers, COMMON_CORRECT_COLUMNS);
-  if (!col) return undefined;
-  const value = String(row[col] ?? '').trim().toUpperCase();
-  if (['A', 'B', 'C', 'D'].includes(value)) return value as AnswerOption;
+function normalizeCorrect(raw: unknown): AnswerOption | undefined {
+  const v = String(raw ?? '').trim().toUpperCase();
+  if (['A', 'B', 'C', 'D'].includes(v)) return v as AnswerOption;
   return undefined;
-}
-
-function extractTheme(tabName: string): string {
-  return tabName.trim() || 'Sin tema';
 }
 
 export function importExcelFromFile(file: File): Promise<ImportResult> {
@@ -100,60 +97,63 @@ export function importExcelFromWorkbook(workbook: XLSX.WorkBook): ImportResult {
   for (const tabName of workbook.SheetNames) {
     const ws = workbook.Sheets[tabName];
     const json = XLSX.utils.sheet_to_json<RawQuestionRow>(ws) as RawQuestionRow[];
-
     if (!json || json.length === 0) continue;
 
     const firstRow = json[0];
     const headers = Object.keys(firstRow).filter((h) => h.trim() !== '');
+    const questionCol = findColumn(headers, QUESTION_COLUMNS);
+    const optionsCol = findColumn(headers, OPTIONS_COLUMNS);
+    const correctCol = findColumn(headers, CORRECT_COLUMNS);
 
-    const questionCol = findColumn(headers, COMMON_QUESTION_COLUMNS);
     if (!questionCol) {
       errors.push({ row: 0, tab: tabName, message: 'No se encontró columna de pregunta' });
+      continue;
+    }
+    if (!optionsCol) {
+      errors.push({ row: 0, tab: tabName, message: 'No se encontró columna de opciones' });
+      continue;
+    }
+    if (!correctCol) {
+      errors.push({ row: 0, tab: tabName, message: 'No se encontró columna de respuesta correcta' });
       continue;
     }
 
     for (let i = 0; i < json.length; i++) {
       const row = json[i];
       if (!row) continue;
-
       const rowNum = i + 1;
       const questionText = String(row[questionCol] ?? '').trim();
       if (!questionText) {
         errors.push({ row: rowNum, tab: tabName, message: 'Pregunta vacía' });
         continue;
       }
-
       if (seenTexts.has(questionText)) {
         errors.push({ row: rowNum, tab: tabName, message: 'Pregunta duplicada' });
         continue;
       }
-
-      const options = extractOptions(row, headers);
+      const options = parseOptionsFromCell(row[optionsCol]);
       if (!options) {
         errors.push({ row: rowNum, tab: tabName, message: 'Faltan opciones A, B, C o D' });
         continue;
       }
-
-      const correctOption = extractCorrectOption(row, headers);
+      const correctOption = normalizeCorrect(row[correctCol]);
       if (!correctOption) {
         errors.push({ row: rowNum, tab: tabName, message: 'Respuesta correcta no encontrada o inválida' });
         continue;
       }
-
-      const answerObjs: Array<{ id: string; questionId: string; text: string; option: AnswerOption; isCorrect: boolean }> = [];
-      for (const opt of ['A', 'B', 'C', 'D'] as const) {
+      const answerObjs: Question['options'] = [];
+      for (const opt of options) {
         answerObjs.push({
-          id: `${questionText.slice(0, 10)}-${opt}-${Date.now()}`,
+          id: `${questionText.slice(0, 10)}-${opt.option}-${Date.now()}`,
           questionId: questionText.slice(0, 20),
-          text: options[opt],
-          option: opt,
-          isCorrect: opt === correctOption,
+          text: opt.text,
+          option: opt.option,
+          isCorrect: opt.option === correctOption,
         });
       }
-
       const question: Question = {
         id: `${questionText.slice(0, 15)}-${tabName.slice(0, 10)}-${Date.now()}`,
-        theme: extractTheme(tabName),
+        theme: tabName.trim() || 'Sin tema',
         tabName,
         text: questionText,
         options: answerObjs,
@@ -161,7 +161,6 @@ export function importExcelFromWorkbook(workbook: XLSX.WorkBook): ImportResult {
         sourceFile: 'excel-import',
         importedAt: new Date().toISOString(),
       };
-
       seenTexts.add(questionText);
       questions.push(question);
     }
@@ -169,3 +168,5 @@ export function importExcelFromWorkbook(workbook: XLSX.WorkBook): ImportResult {
 
   return { imported: questions.length, errors, questions };
 }
+
+export { importExcelFromFile as importExcel };
