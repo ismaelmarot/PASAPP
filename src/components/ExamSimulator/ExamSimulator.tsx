@@ -1,17 +1,31 @@
 import {
   SimulatorContainer,
-  ThemeGrid,
+  ThemeList,
+  ThemeOption,
+  ThemeCheckbox,
+  SimulatorControls,
+  ControlRow,
+  ControlLabel,
+  CountInput,
+  ModeSelect,
   ProgressBar,
   ProgressFill,
   StatsRow,
   StatItem,
   StatValue,
   QuestionContainer,
-  ResultsContainer,
-  BigPercentage,
+  ResultCard,
+  ScoreDisplay,
+  ResultTitle,
+  ResultSubtitle,
+  ResultStatGrid,
+  ResultStatCard,
+  ResultStatLabel,
+  ResultStatValue,
+  ActionGroup,
 } from './ExamSimulator.styles';
 import { Button, QuestionCard } from '@/components';
-import { useExamSimulator } from './useExamSimulator';
+import { useExamSimulator, QuestionCountMode } from './useExamSimulator';
 
 export interface ExamSimulatorProps {
   questions: Array<{
@@ -28,6 +42,9 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
     state,
     theme,
     themes,
+    selectedThemes,
+    questionCountMode,
+    questionCount,
     currentQuestion,
     currentIndex,
     totalQuestions,
@@ -35,7 +52,10 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
     incorrectAnswers,
     percentage,
     canRetryIncorrect,
-    selectTheme,
+    toggleTheme,
+    setQuestionCountMode,
+    setQuestionCount,
+    start,
     confirmAnswer,
     nextQuestion,
     retryIncorrect,
@@ -50,13 +70,29 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
         {themes.length > 0 ? (
           <>
             <p>Elige el tema que deseas practicar:</p>
-            <ThemeGrid>
+            <ThemeList>
               {themes.map((t) => (
-                <Button key={t} variant="secondary" onClick={() => selectTheme(t)}>
-                  {t}
-                </Button>
+                <ThemeOption key={t}>
+                  <ThemeCheckbox type="checkbox" checked={selectedThemes.includes(t)} onChange={() => toggleTheme(t)} />
+                  <span>{t}</span>
+                </ThemeOption>
               ))}
-            </ThemeGrid>
+            </ThemeList>
+            <SimulatorControls>
+              <ControlRow>
+                <ControlLabel htmlFor="question-count">Cantidad de preguntas:</ControlLabel>
+                <CountInput id="question-count" type="number" min={1} max={200} value={questionCount} onChange={(e) => setQuestionCount(Math.max(1, Number(e.target.value) || 1))} />
+              </ControlRow>
+              <ControlRow>
+                <ControlLabel htmlFor="question-count-mode">Modo:</ControlLabel>
+                <ModeSelect id="question-count-mode" value={questionCountMode} onChange={(e) => setQuestionCountMode(e.target.value as QuestionCountMode)}>
+                  <option value="all">Todas</option>
+                  <option value="per-theme">Por tema</option>
+                  <option value="total">Total</option>
+                </ModeSelect>
+              </ControlRow>
+            </SimulatorControls>
+            <Button onClick={start}>Iniciar simulacro</Button>
           </>
         ) : (
           <p>No hay preguntas para practicar. Importa un archivo Excel primero.</p>
@@ -66,32 +102,39 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
   }
 
   if (isFinished) {
+    const resultMessage = percentage >= 80 ? '¡Excelente!' : percentage >= 50 ? 'Buen trabajo' : 'Sigue practicando';
+
     return (
       <SimulatorContainer>
-        <ResultsContainer>
-          <BigPercentage>{percentage} %</BigPercentage>
-          <p>Simulacro finalizado</p>
-          <StatsRow>
-            <StatItem>
-              <span>Correctas</span>
-              <StatValue>{correctAnswers}</StatValue>
-            </StatItem>
-            <StatItem>
-              <span>Incorrectas</span>
-              <StatValue>{incorrectAnswers}</StatValue>
-            </StatItem>
-            <StatItem>
-              <span>Totales</span>
-              <StatValue>{totalQuestions}</StatValue>
-            </StatItem>
-          </StatsRow>
-          {canRetryIncorrect && (
-            <Button variant="secondary" onClick={retryIncorrect}>
-              Practicar incorrectas
-            </Button>
-          )}
-          <Button onClick={restart}>Nuevo simulacro</Button>
-        </ResultsContainer>
+        <ResultCard>
+          <ScoreDisplay>{percentage} %</ScoreDisplay>
+          <ResultTitle>
+            <p>Simulacro finalizado</p>
+            <ResultSubtitle>{resultMessage}</ResultSubtitle>
+          </ResultTitle>
+          <ResultStatGrid>
+            <ResultStatCard>
+              <ResultStatValue>{correctAnswers}</ResultStatValue>
+              <ResultStatLabel>Correctas</ResultStatLabel>
+            </ResultStatCard>
+            <ResultStatCard>
+              <ResultStatValue>{incorrectAnswers}</ResultStatValue>
+              <ResultStatLabel>Incorrectas</ResultStatLabel>
+            </ResultStatCard>
+            <ResultStatCard>
+              <ResultStatValue>{totalQuestions}</ResultStatValue>
+              <ResultStatLabel>Totales</ResultStatLabel>
+            </ResultStatCard>
+          </ResultStatGrid>
+          <ActionGroup>
+            {canRetryIncorrect && (
+              <Button variant="secondary" onClick={retryIncorrect}>
+                Practicar incorrectas
+              </Button>
+            )}
+            <Button onClick={restart}>Nuevo simulacro</Button>
+          </ActionGroup>
+        </ResultCard>
       </SimulatorContainer>
     );
   }
@@ -113,6 +156,7 @@ export function ExamSimulator({ questions }: ExamSimulatorProps) {
 
       <QuestionContainer>
         <QuestionCard
+          key={currentQuestion!.id}
           question={{
             id: currentQuestion!.id,
             text: currentQuestion!.text,

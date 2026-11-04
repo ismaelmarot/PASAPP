@@ -28,6 +28,7 @@ export function QuestionCard({ question, onAnswer }: QuestionCardProps) {
             key={opt.id}
             selected={isSelected(opt.option)}
             correct={confirmed && opt.option === question.correctOption}
+            incorrect={confirmed && opt.option !== question.correctOption}
             disabled={isDisabled()}
             onClick={() => {
               selectOption(opt.option);

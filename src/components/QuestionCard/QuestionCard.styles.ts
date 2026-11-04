@@ -4,6 +4,7 @@ import { spacing, borderRadius } from '@/styles';
 interface OptionProps {
   selected: boolean;
   correct?: boolean;
+  incorrect?: boolean;
   disabled?: boolean;
 }
 
@@ -19,7 +20,7 @@ export const Container = styled.div`
 `;
 
 export const QuestionText = styled.p`
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.4;
@@ -37,7 +38,7 @@ export const OptionButton = styled.button<OptionProps>`
   gap: ${spacing.md};
   width: 100%;
   padding: ${spacing.md};
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 500;
   text-align: left;
   border-radius: ${borderRadius.md};
@@ -64,8 +65,7 @@ export const OptionButton = styled.button<OptionProps>`
   `}
 
   ${(p) =>
-    !p.selected &&
-    p.correct === false &&
+    p.incorrect &&
     `
     border-color: var(--color-error);
     background: var(--color-error-soft);

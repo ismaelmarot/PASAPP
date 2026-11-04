@@ -4,7 +4,7 @@ import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav
 import type { AppView } from '@/components/Dashboard';
 import type { NavItem } from '@/components/Nav';
 import { useQuestions, useDocuments, useExamResults } from '@/hooks';
-import { GlobalStyles, spacing } from '@/styles';
+import { GlobalStyles, spacing, borderRadius } from '@/styles';
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'inicio', label: 'Inicio', icon: 'home' },
@@ -28,20 +28,23 @@ const Layout = styled.div`
   background: var(--color-bg);
 `;
 
-const Sidebar = styled.aside`
+const Sidebar = styled.aside<{ $collapsed?: boolean }>`
   width: 100%;
   border-bottom: 1px solid var(--color-border);
   padding: ${spacing.lg} ${spacing.md};
 
   @media (min-width: 768px) {
-    width: 240px;
+    width: ${(p) => (p.$collapsed ? '0' : '240px')};
     min-height: 100vh;
-    border-right: 1px solid var(--color-border);
+    border-right: ${(p) => (p.$collapsed ? 'none' : '1px solid var(--color-border)')};
     border-bottom: none;
-    padding: ${spacing.lg} ${spacing.md};
+    padding: ${(p) => (p.$collapsed ? '0' : `calc(${spacing.lg} + 2.25rem + ${spacing.md}) ${spacing.md}`)};
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: width 0.2s ease, padding 0.2s ease;
   }
 `;
 
@@ -53,9 +56,38 @@ const Main = styled.main`
   padding: ${spacing.lg} ${spacing.xl};
 `;
 
+const ToggleButton = styled.button`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: ${borderRadius.md};
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: var(--color-surface-alt);
+  }
+
+  @media (min-width: 768px) {
+    display: inline-flex;
+    position: fixed;
+    left: ${spacing.md};
+    top: ${spacing.lg};
+    z-index: 30;
+  }
+`;
+
 function App(): JSX.Element {
   const [view, setView] = useState<AppView>('inicio');
   const [activeKey, setActiveKey] = useState<string>('inicio');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { questions, refresh } = useQuestions();
   const { documents } = useDocuments();
   const { examResults } = useExamResults();
@@ -76,8 +108,15 @@ function App(): JSX.Element {
     <>
       <GlobalStyles />
       <Layout>
-        <Sidebar>
+        <Sidebar $collapsed={sidebarCollapsed}>
           <Nav items={NAV_ITEMS} active={activeKey} onNavigate={handleNavigate} />
+          <ToggleButton
+            type="button"
+            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
+            aria-label={sidebarCollapsed ? 'Mostrar menú' : 'Ocultar menú'}
+          >
+            {sidebarCollapsed ? '☰' : '«'}
+          </ToggleButton>
         </Sidebar>
         <Main>
           {view === 'inicio' && <Dashboard examResults={examResults} onNavigate={handleNavigate} />}

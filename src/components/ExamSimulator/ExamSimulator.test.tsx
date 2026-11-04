@@ -41,16 +41,16 @@ describe('ExamSimulator', () => {
     expect(screen.getByText(/seleccionar tema/i)).toBeInTheDocument();
   });
 
-  it('starts answering after selecting a theme', () => {
+  it('starts answering after clicking iniciar simulacro', () => {
     render(<ExamSimulator questions={questions} />);
-    const themeBtn = screen.getByText(/seguros generales/i);
-    fireEvent.click(themeBtn);
+    fireEvent.click(screen.getByText(/iniciar simulacro/i));
+    expect(screen.queryByText(/seleccionar tema/i)).toBeNull();
     expect(screen.getByText(/¿qué es un seguro/i)).toBeInTheDocument();
   });
 
   it('records answer and shows feedback', () => {
     render(<ExamSimulator questions={questions} />);
-    fireEvent.click(screen.getByText(/seguros generales/i));
+    fireEvent.click(screen.getByText(/iniciar simulacro/i));
     const optionA = screen.getByText(/A\. Contrato/);
     fireEvent.click(optionA);
     expect(screen.getByText(/respuesta correcta/i)).toBeInTheDocument();

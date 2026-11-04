@@ -3,6 +3,8 @@ import { pdfService } from '@/services';
 
 type SimulatorState = 'select-theme' | 'answering' | 'feedback' | 'results';
 
+export type QuestionCountMode = 'all' | 'per-theme' | 'total';
+
 interface SimpleQuestion {
   id: string;
   text: string;
@@ -24,18 +26,37 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
   const [answers, setAnswers] = useState<Array<{ questionId: string; selectedOption: string; isCorrect: boolean }>>([]);
   const [complementaryInfo, setComplementaryInfo] = useState<Array<{ fragment: string; documentName: string; pageNumber: number; category: string }>>([]);
 
-  const themes = Array.from(new Set(questions.map((q) => q.theme)));
+  const themes = Array.from(new Set(questions.map((q) => q.theme))).sort((a, b) => a.localeCompare(b));
+  const [selectedThemes, setSelectedThemes] = useState<string[]>(() => Array.from(new Set(questions.map((q) => q.theme))).sort((a, b) => a.localeCompare(b)));
+  const [questionCountMode, setQuestionCountMode] = useState<QuestionCountMode>('total');
+  const [questionCount, setQuestionCount] = useState<number>(10);
 
-  const selectTheme = useCallback((t: string) => {
-    setTheme(t);
-    const filtered = questions.filter((q) => q.theme === t);
-    setThemeQuestions(filtered);
+  const toggleTheme = useCallback((t: string) => {
+    setSelectedThemes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t].sort((a, b) => a.localeCompare(b))));
+  }, []);
+
+  const start = useCallback(() => {
+    const filtered = questions.filter((q) => selectedThemes.includes(q.theme));
+    const seenTexts = new Set<string>();
+    const deduped = filtered.filter((q) => {
+      const key = q.text.trim().toLowerCase();
+      if (seenTexts.has(key)) return false;
+      seenTexts.add(key);
+      return true;
+    });
+    const finalQuestions: SimpleQuestion[] = questionCountMode === 'per-theme'
+      ? selectedThemes.slice().sort((a, b) => a.localeCompare(b)).flatMap((t) => deduped.filter((q) => q.theme === t).slice(0, Math.max(0, questionCount)))
+      : questionCountMode === 'all'
+        ? deduped
+        : deduped.slice(0, Math.max(0, questionCount));
+    setThemeQuestions(finalQuestions);
     setCurrentIndex(0);
     setSelectedOption(null);
     setAnswers([]);
     setComplementaryInfo([]);
+    setTheme(finalQuestions[0]?.theme ?? '');
     setState('answering');
-  }, [questions]);
+  }, [questions, selectedThemes, questionCountMode, questionCount]);
 
   const selectOption = useCallback((opt: 'A' | 'B' | 'C' | 'D') => {
     setSelectedOption(opt);
@@ -46,8 +67,8 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
     const current = themeQuestions[currentIndex];
     const isCorrect = option === current.correctOption;
     setAnswers((prev) => [...prev, { questionId: current.id, selectedOption: option, isCorrect }]);
+    setState('feedback');
 
-    // Buscar información complementaria en PDFs
     const searchTerms = current.text.split(' ').filter((w: string) => w.length > 4).slice(0, 3);
     let info: Array<{ fragment: string; documentName: string; pageNumber: number; category: string }> = [];
     for (const term of searchTerms) {
@@ -58,7 +79,6 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
       }
     }
     setComplementaryInfo(info);
-    setState('feedback');
   }, [currentIndex, themeQuestions]);
 
   const nextQuestion = useCallback(() => {
@@ -96,7 +116,10 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
     setSelectedOption(null);
     setAnswers([]);
     setComplementaryInfo([]);
-  }, []);
+    setSelectedThemes(Array.from(new Set(questions.map((q) => q.theme))).sort((a, b) => a.localeCompare(b)));
+    setQuestionCountMode('total');
+    setQuestionCount(10);
+  }, [questions]);
 
   const currentQuestion = themeQuestions[currentIndex];
 
@@ -104,6 +127,9 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
     state,
     theme,
     themes,
+    selectedThemes,
+    questionCountMode,
+    questionCount,
     currentQuestion,
     currentIndex,
     totalQuestions: themeQuestions.length,
@@ -114,7 +140,10 @@ export function useExamSimulator({ questions }: UseExamSimulatorProps) {
     percentage,
     complementaryInfo,
     canRetryIncorrect,
-    selectTheme,
+    toggleTheme,
+    setQuestionCountMode,
+    setQuestionCount,
+    start,
     selectOption,
     confirmAnswer,
     nextQuestion,
