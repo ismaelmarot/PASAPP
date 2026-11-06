@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav } from '@/components';
 import type { AppView } from '@/components/Dashboard';
@@ -84,13 +84,58 @@ const ToggleButton = styled.button`
   }
 `;
 
+const ThemeButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: ${spacing.lg};
+  right: ${spacing.md};
+  z-index: 30;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: ${borderRadius.md};
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: var(--color-surface-alt);
+  }
+`;
+
+type ThemeMode = 'light' | 'dark';
+
+const THEME_STORAGE_KEY = 'pasapp-theme';
+
+function getInitialTheme(): ThemeMode {
+  if (typeof window === 'undefined') return 'light';
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 function App(): JSX.Element {
   const [view, setView] = useState<AppView>('inicio');
   const [activeKey, setActiveKey] = useState<string>('inicio');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
   const { questions, refresh } = useQuestions();
   const { documents } = useDocuments();
   const { examResults } = useExamResults();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode);
+    window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+  }, [themeMode]);
+
+  const toggleTheme = () => {
+    setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark'));
+  };
 
   const handleNavigate = (input: string) => {
     const nextView = NAV_TO_VIEW[input] ?? (input as AppView);
@@ -117,6 +162,14 @@ function App(): JSX.Element {
           >
             {sidebarCollapsed ? '☰' : '«'}
           </ToggleButton>
+          <ThemeButton
+            type="button"
+            onClick={toggleTheme}
+            aria-label={themeMode === 'dark' ? 'Activar tema claro' : 'Activar tema oscuro'}
+            title={themeMode === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+          >
+            {themeMode === 'dark' ? '☀️' : '🌙'}
+          </ThemeButton>
         </Sidebar>
         <Main>
           {view === 'inicio' && <Dashboard examResults={examResults} onNavigate={handleNavigate} />}

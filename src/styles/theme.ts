@@ -97,6 +97,7 @@ export const theme = colors.light;
 
 export const themeVariables = `
   :root {
+    color-scheme: light;
     --color-bg: #ffffff;
     --color-surface: #ffffff;
     --color-surface-alt: #f5f5f7;
@@ -131,9 +132,9 @@ export const themeVariables = `
     --font-size-caption: 0.875rem;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-bg: #000000;
+  [data-theme='dark'] {
+    color-scheme: dark;
+    --color-bg: #000000;
       --color-surface: #1c1c1e;
       --color-surface-alt: #2c2c2e;
       --color-surface-hover: #3a3c3e;
@@ -152,7 +153,6 @@ export const themeVariables = `
       --color-warning: #ff9f0a;
       --color-overlay: rgba(0, 0, 0, 0.6);
       --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    }
   }
 `;
 
