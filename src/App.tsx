@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav } from '@/components';
+import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav, Icon } from '@/components';
 import type { AppView } from '@/components/Dashboard';
 import type { NavItem } from '@/components/Nav';
 import { useQuestions, useDocuments, useExamResults } from '@/hooks';
@@ -85,26 +85,24 @@ const ToggleButton = styled.button`
 `;
 
 const ThemeButton = styled.button`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  position: fixed;
-  top: ${spacing.lg};
-  right: ${spacing.md};
-  z-index: 30;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--color-border-subtle);
+  gap: ${spacing.md};
+  width: 100%;
+  padding: ${spacing.md};
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
   border-radius: ${borderRadius.md};
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-body);
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
     background: var(--color-surface-alt);
+    color: var(--color-text-primary);
   }
 `;
 
@@ -168,7 +166,8 @@ function App(): JSX.Element {
             aria-label={themeMode === 'dark' ? 'Activar tema claro' : 'Activar tema oscuro'}
             title={themeMode === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
           >
-            {themeMode === 'dark' ? '☀️' : '🌙'}
+            <Icon name={themeMode === 'dark' ? 'sun' : 'moon'} size={18} />
+            <span>{themeMode === 'dark' ? 'Claro' : 'Oscuro'}</span>
           </ThemeButton>
         </Sidebar>
         <Main>
