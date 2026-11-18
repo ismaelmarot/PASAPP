@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav, Icon } from '@/components';
+import { MaterialLibrary, ImportExcel, ExamSimulator, Dashboard, Statistics, Nav, Icon, Welcome } from '@/components';
 import type { AppView } from '@/components/Dashboard';
 import type { NavItem } from '@/components/Nav';
 import { useQuestions, useDocuments, useExamResults } from '@/hooks';
@@ -121,6 +121,7 @@ function App(): JSX.Element {
   const [view, setView] = useState<AppView>('inicio');
   const [activeKey, setActiveKey] = useState<string>('inicio');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [entered, setEntered] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
   const { questions, refresh } = useQuestions();
   const { documents } = useDocuments();
@@ -146,6 +147,15 @@ function App(): JSX.Element {
     await refresh();
     handleNavigate('estudiar');
   };
+
+  if (!entered) {
+    return (
+      <>
+        <GlobalStyles />
+        <Welcome onEnter={() => setEntered(true)} />
+      </>
+    );
+  }
 
   return (
     <>

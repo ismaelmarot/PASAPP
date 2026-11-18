@@ -16,3 +16,5 @@ export { Dashboard } from './Dashboard';
 export type { DashboardProps, AppView } from './Dashboard';
 export { Statistics } from './Statistics';
 export type { StatisticsProps } from './Statistics';
+export { Welcome } from './Welcome';
+export type { WelcomeProps } from './Welcome';
