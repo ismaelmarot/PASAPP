@@ -2,13 +2,16 @@
   "name": "pasapp",
   "private": true,
   "version": "0.1.0",
+  "homepage": "https://ismaelmarot.github.io/PASAPP",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "deploy": "gh-pages -d dist",
+    "predeploy": "npm run build && echo '/* /index.html 200' > dist/_redirects && cp dist/index.html dist/404.html"
   },
   "dependencies": {
     "pdfjs-dist": "^4.7.75",
@@ -20,6 +23,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
+    "gh-pages": "^6.2.0",
     "@types/jsdom": "^30.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

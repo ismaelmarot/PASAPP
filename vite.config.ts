@@ -9,6 +9,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  base: '/PASAPP/',
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
